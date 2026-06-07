@@ -28,21 +28,20 @@ The system will retrieve relevant discussions and generate grounded answers with
 
 | # | Source | Description | URL or location |
 |---|--------|-------------|-----------------|
-| 1 | dev.to — Landing Your First CS Internship | Strategic guide on internship hunting with no experience: networking, projects, timing, and applications | https://dev.to/jaber1028/landing-your-first-cs-internship-a-strategic-guide-81j |
-| 2 | dev.to — LeetCode Alone Won't Save You in 2026 | Argues LeetCode is insufficient for FAANG interviews; covers system design, behavioral prep, and pattern-based study | https://dev.to/somadevtoo/leetcode-alone-wont-save-you-in-2026-prepare-these-7-topics-22nl |
-| 3 | dev.to — 10 Great Programming Projects to Improve Your Resume | Specific project ideas for CS students to build portfolio-worthy work with real-world impact | https://dev.to/seattledataguy/10-great-programming-projects-to-improve-your-resume-and-learn-to-program-1e2h |
-| 4 | dev.to — Is a Master's/PhD Worth It in Software Engineering? | Community discussion on ROI of graduate degrees vs. industry experience for software engineers | https://dev.to/fedekau/is-a-mastersphd-degree-worth-the-effortmoney-in-the-software-engineering-universe-27m1 |
-| 5 | dev.to — Imposter Syndrome as a Beginner/Junior Developer | Personal experience and community advice on handling imposter syndrome early in a CS career | https://dev.to/usaidpeerzada/my-experience-with-imposter-syndrome-as-a-beginner-junior-developer-11ec |
-| 6 | GeeksforGeeks — Complete Technical Interview Preparation Guide | Step-by-step placement prep covering DSA, OOP, DBMS, OS, and interview rounds | https://www.geeksforgeeks.org/technical-interview-preparation/ |
-| 7 | GeeksforGeeks — How to Contribute to Open Source | Beginner guide on getting started with open source: finding first issues, making PRs, building a reputation | https://www.geeksforgeeks.org/git/how-to-contribute-open-source/ |
-| 8 | GeeksforGeeks — How to Build a GitHub Developer Portfolio | Advice on showcasing projects on GitHub to impress recruiters, portfolio structure, and project selection | https://www.geeksforgeeks.org/blogs/how-to-build-a-awesome-github-developer-portfolio/ |
-| 9 | Ask HN — What advice would you give to a CS student today? | Hacker News thread with experienced engineers advising CS students on what to focus on | https://news.ycombinator.com/item?id=43499119 |
-| 10 | Ask HN — What should CS students do to prepare for the job market? | Hacker News discussion on job market preparation, skill-building, and career strategy after graduation | https://news.ycombinator.com/item?id=45120088 |
+| 1 | dev.to — Landing Your First CS Internship | Strategic guide on internship hunting with no experience: networking, projects, timing, and applications | https://dev.to/jaber1028/landing-your-first-cs-internship-a-strategic-guide-81j — saved as `documents/first_internship_devto.txt` |
+| 2 | dev.to — LeetCode Alone Won't Save You in 2026 | Argues LeetCode is insufficient for FAANG interviews; covers system design, behavioral prep, and pattern-based study | https://dev.to/somadevtoo/leetcode-alone-wont-save-you-in-2026-prepare-these-7-topics-22nl — saved as `documents/leetcode_not_enough_devto.txt` |
+| 3 | dev.to — 10 Great Programming Projects to Improve Your Resume | Specific project ideas for CS students to build portfolio-worthy work with real-world impact | https://dev.to/seattledataguy/10-great-programming-projects-to-improve-your-resume-and-learn-to-program-1e2h — saved as `documents/resume_projects_devto.txt` |
+| 4 | dev.to — Is a Master's/PhD Worth It in Software Engineering? | Community discussion on ROI of graduate degrees vs. industry experience for software engineers | https://dev.to/fedekau/is-a-mastersphd-degree-worth-the-effortmoney-in-the-software-engineering-universe-27m1 — saved as `documents/masters_degree_worth_it_devto.txt` |
+| 5 | dev.to — Imposter Syndrome as a Beginner/Junior Developer | Personal experience and community advice on handling imposter syndrome early in a CS career | https://dev.to/usaidpeerzada/my-experience-with-imposter-syndrome-as-a-beginner-junior-developer-11ec — saved as `documents/imposter_syndrome_devto.txt` |
+| 6 | GeeksforGeeks — Complete Technical Interview Preparation Guide | Step-by-step placement prep covering DSA, OOP, DBMS, OS, and interview rounds | https://www.geeksforgeeks.org/technical-interview-preparation/ — saved as `documents/interview_prep_gfg.txt` |
+| 7 | GeeksforGeeks — How to Contribute to Open Source | Beginner guide on getting started with open source: finding first issues, making PRs, building a reputation | https://www.geeksforgeeks.org/git/how-to-contribute-open-source/ — saved as `documents/open_source_contribution_gfg.txt` |
+| 8 | GeeksforGeeks — How to Build a GitHub Developer Portfolio | Advice on showcasing projects on GitHub to impress recruiters, portfolio structure, and project selection | https://www.geeksforgeeks.org/blogs/how-to-build-a-awesome-github-developer-portfolio/ — saved as `documents/github_portfolio_gfg.txt` |
+| 9 | Ask HN — What advice would you give to a CS student today? | Hacker News thread with experienced engineers advising CS students on what to focus on | https://news.ycombinator.com/item?id=43499119 — saved as `documents/cs_student_advice_hn.txt` |
+| 10 | Ask HN — What should CS students do to prepare for the job market? | Hacker News discussion on job market preparation, skill-building, and career strategy after graduation | https://news.ycombinator.com/item?id=45120088 — saved as `documents/job_market_prep_hn.txt` |
 
 ---
 
 ## Chunking Strategy
-
 <!-- How will you split documents into chunks?
      State your chunk size (in tokens or characters), overlap size, and explain why those
      numbers fit the structure of your documents.

@@ -1,0 +1,280 @@
+LANDING YOUR FIRST CS INTERNSHIP — STUDENT GUIDE
+
+OVERVIEW
+
+Landing a Computer Science internship requires early preparation, technical skill development, networking, effective resume building, interview preparation, and persistence. Internship recruiting often begins months before internship start dates, making timing an important factor in the application process.
+
+TIMELINE
+
+Fall Internships (July–December)
+
+* Applications Open: January–March
+* Interview Season: February–April
+* Offers Issued: March–May
+
+Spring Internships (January–June)
+
+* Applications Open: July–September
+* Interview Season: August–October
+* Offers Issued: September–November
+
+APPLICATION PACKAGE
+
+Resume
+
+A strong technical resume should include:
+
+Technical Skills
+
+* Programming languages
+* Frameworks and libraries
+* Development tools
+
+Projects
+
+Each project should include:
+
+* Project name
+* Technologies used
+* Date completed
+* Measurable outcomes
+* Technical challenges solved
+* Team size and responsibilities
+
+Education
+
+* GPA (if above 3.0)
+* Relevant coursework
+* Academic achievements
+
+PROJECT PRESENTATION
+
+Employers evaluate more than completed projects. Candidates should explain:
+
+* Problems solved
+* Technical decisions made
+* Alternatives considered
+* Design tradeoffs
+* Scalability considerations
+
+Example:
+
+Project: FitLink
+
+Technologies:
+
+* Swift
+* UIKit
+* Firebase
+
+Features:
+
+* User authentication
+* Data storage
+* Social interaction
+* Messaging
+
+Candidates should explain why technologies were selected and how those choices supported project requirements.
+
+PORTFOLIO DEVELOPMENT
+
+GitHub Profile
+
+Recommended practices:
+
+* Maintain clean README files
+* Commit code regularly
+* Document projects thoroughly
+
+Personal Website
+
+Recommended content:
+
+* Project demonstrations
+* Technical articles
+* Learning journey
+* Product videos
+
+NETWORKING
+
+Networking can improve internship opportunities.
+
+Effective networking methods:
+
+* Alumni outreach
+* LinkedIn connections
+* Career fairs
+* Technical communities
+
+Benefits:
+
+* Company insights
+* Interview preparation
+* Referral opportunities
+* Mentorship
+
+APPLICATION STRATEGY
+
+Company Research
+
+Research the following:
+
+Company Background
+
+* Products and services
+* Technology stack
+* Engineering culture
+
+Position Requirements
+
+* Required skills
+* Preferred skills
+* Team structure
+
+Application Tracking
+
+Track:
+
+* Submission dates
+* Follow-up dates
+* Recruiter contacts
+* Interview status
+
+APPLICATION PLATFORMS
+
+University Resources
+
+* Career fairs
+* Alumni network
+* Department listings
+* Job boards
+
+Online Resources
+
+* LinkedIn
+* Handshake
+* Company websites
+* Glassdoor
+
+TECHNICAL INTERVIEW PREPARATION
+
+Practice Resources
+
+Coding Platforms
+
+* LeetCode
+* HackerRank
+* CodeSignal
+* NeetCode
+
+Mock Interviews
+
+* Pramp
+* Career center sessions
+* Peer practice
+
+INTERVIEW TYPES
+
+Technical Screening
+
+Common topics:
+
+* Data structures
+* Algorithms
+* Problem solving
+* Coding exercises
+
+Technical Discussion
+
+Topics include:
+
+* Project experience
+* Technology choices
+* Engineering decisions
+* Learning experiences
+
+Behavioral Interviews
+
+Use the STAR framework.
+
+Situation
+
+* Describe context
+
+Task
+
+* Define objective
+
+Action
+
+* Explain solution
+
+Result
+
+* Describe outcome
+
+AFTER THE INTERVIEW
+
+Follow-Up Process
+
+Same Day
+
+* Send thank-you email
+* Record discussion notes
+
+One Week
+
+* Follow up if necessary
+* Share relevant updates
+
+Two Weeks
+
+* Final follow-up
+* Confirm continued interest
+
+OFFER EVALUATION
+
+Evaluate opportunities based on:
+
+* Compensation
+* Remote flexibility
+* Technology exposure
+* Mentorship
+* Team culture
+* Career growth
+
+LEARNING FROM REJECTION
+
+Review each unsuccessful application.
+
+Analyze:
+
+Interview Performance
+
+* Strengths
+* Weaknesses
+* Missed questions
+
+Preparation Gaps
+
+* Missing skills
+* Insufficient practice
+* Research deficiencies
+
+Improvement Plan
+
+* New skills to learn
+* Additional practice
+* Resume updates
+
+KEY TAKEAWAYS
+
+Successful internship candidates typically demonstrate:
+
+* Early preparation
+* Consistent practice
+* Strong communication
+* Continuous learning
+* Persistence
+
+Every application and interview provides valuable experience that can improve future opportunities.
