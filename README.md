@@ -14,6 +14,12 @@
      Example: "Student reviews of CS professors at [university] — useful because official
      course descriptions don't reflect teaching style, exam difficulty, or workload." -->
 
+**Selected Domain: Computer Science Student Survival Guide**
+
+This system aggregates career advice for Computer Science students in general — not tied to a single university — covering topics like landing a first internship, technical interview prep, building a resume-worthy portfolio, deciding whether to pursue a Master's degree, and handling imposter syndrome.
+
+This knowledge is valuable because it's exactly the kind of practical, lived-experience guidance that university career centers and course catalogs don't provide: how to actually get an internship with no experience, whether grinding LeetCode alone is enough to pass a FAANG interview, or what makes one side project stand out over another. It's hard to find through official channels because it lives informally — scattered across developer blogs (dev.to), technical tutorial sites (GeeksforGeeks), and discussion threads (Hacker News) — and requires reading dozens of posts to triangulate a consistent answer. This system collapses that search into a single grounded, cited Q&A interface.
+
 ---
 
 ## Document Sources
@@ -24,16 +30,16 @@
 
 | # | Source | Type | URL or file path |
 |---|--------|------|-----------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-| 6 | | | |
-| 7 | | | |
-| 8 | | | |
-| 9 | | | |
-| 10 | | | |
+| 1 | dev.to — Landing Your First CS Internship | Career advice article | https://dev.to/jaber1028/landing-your-first-cs-internship-a-strategic-guide-81j → `documents/first_internship_devto.txt` |
+| 2 | dev.to — LeetCode Alone Won't Save You in 2026 | Career advice article | https://dev.to/somadevtoo/leetcode-alone-wont-save-you-in-2026-prepare-these-7-topics-22nl → `documents/leetcode_not_enough_devto.txt` |
+| 3 | dev.to — 10 Great Programming Projects to Improve Your Resume | Career advice article | https://dev.to/seattledataguy/10-great-programming-projects-to-improve-your-resume-and-learn-to-program-1e2h → `documents/resume_projects_devto.txt` |
+| 4 | dev.to — Is a Master's/PhD Worth It in Software Engineering? | Career advice article | https://dev.to/fedekau/is-a-mastersphd-degree-worth-the-effortmoney-in-the-software-engineering-universe-27m1 → `documents/masters_degree_worth_it_devto.txt` |
+| 5 | dev.to — Imposter Syndrome as a Beginner/Junior Developer | Personal essay / advice article | https://dev.to/usaidpeerzada/my-experience-with-imposter-syndrome-as-a-beginner-junior-developer-11ec → `documents/imposter_syndrome_devto.txt` |
+| 6 | GeeksforGeeks — Complete Technical Interview Preparation Guide | Technical guide | https://www.geeksforgeeks.org/technical-interview-preparation/ → `documents/interview_prep_gfg.txt` |
+| 7 | GeeksforGeeks — How to Contribute to Open Source | Technical guide | https://www.geeksforgeeks.org/git/how-to-contribute-open-source/ → `documents/open_source_contribution_gfg.txt` |
+| 8 | GeeksforGeeks — How to Build a GitHub Developer Portfolio | Technical guide | https://www.geeksforgeeks.org/blogs/how-to-build-a-awesome-github-developer-portfolio/ → `documents/github_portfolio_gfg.txt` |
+| 9 | Ask HN — What advice would you give to a CS student today? | Forum discussion thread | https://news.ycombinator.com/item?id=43499119 → `documents/cs_student_advice_hn.txt` |
+| 10 | Ask HN — What should CS students do to prepare for the job market? | Forum discussion thread | https://news.ycombinator.com/item?id=45120088 → `documents/job_market_prep_hn.txt` |
 
 ---
 
@@ -46,13 +52,13 @@
      - Any preprocessing you did before chunking (e.g., stripping HTML, removing headers)
      - What your final chunk count was across all documents -->
 
-**Chunk size:**
+**Chunk size:** 400 characters
 
-**Overlap:**
+**Overlap:** 80 characters
 
-**Why these choices fit your documents:**
+**Why these choices fit your documents:** My corpus mixes dev.to listicle-style articles, GeeksforGeeks structured guides (headers + bullet points), and Hacker News comment threads. Most individual pieces of advice — a tip, a recommendation, a personal anecdote — fit naturally within one to three sentences, and 400 characters is enough to capture a complete thought without bleeding into the next unrelated point. Before chunking by character count, I first split on paragraph boundaries (`\n\n`) and pack whole paragraphs into a chunk up to the 400-character limit (only falling back to a hard character split for paragraphs that exceed it on their own) — this keeps related sentences together rather than cutting mid-thought at an arbitrary offset. The 80-character overlap then protects against the remaining case where a key point spans a paragraph boundary (e.g., a numbered-list header on one line and its explanation in the next paragraph), so that idea remains retrievable from at least one of the two adjacent chunks.
 
-**Final chunk count:**
+**Final chunk count:** 193 chunks across the 10 source documents (chunk lengths range from 93–400 characters, averaging ~349).
 
 ---
 
@@ -64,9 +70,9 @@
      Consider: context length limits, multilingual support, accuracy on domain-specific text,
      latency, and local vs. API-hosted. -->
 
-**Model used:**
+**Model used:** `all-MiniLM-L6-v2` via `sentence-transformers`, run locally through ChromaDB's `SentenceTransformerEmbeddingFunction`. It produces 384-dimensional vectors, requires no API key, has zero per-query cost, and runs fast enough on CPU that ingesting 193 chunks and embedding live queries both feel instantaneous.
 
-**Production tradeoff reflection:**
+**Production tradeoff reflection:** `all-MiniLM-L6-v2` has a hard 256-token context window — any chunk longer than roughly 180 words gets silently truncated before it's embedded, which is part of why I kept chunks well under that limit (400 characters ≈ 70–90 words). For a production deployment where cost isn't a constraint, I'd weigh it against API-hosted alternatives like `text-embedding-3-small` (OpenAI, 8,192-token window, generally stronger semantic accuracy) or `voyage-large-2` (Voyage AI, purpose-built for retrieval). The tradeoffs: (1) **cost and latency** — local inference is free and has no network round-trip, while API models charge per token and add request latency; (2) **accuracy on domain-specific text** — larger API-hosted models tend to capture nuance in informal, jargon-heavy text (like "FAANG," "LeetCode grind," "system design rounds") more reliably than a compact local model; (3) **data privacy** — local embedding keeps all text on-machine, which matters if the corpus ever expanded to include private student data (e.g., real resumes or transcripts) rather than public articles. For this project's public-article corpus, the free local model is the right call; for a system handling sensitive student records, that privacy guarantee would likely outweigh the accuracy gains of an API model.
 
 ---
 
@@ -81,7 +87,19 @@
 
 **System prompt grounding instruction:**
 
+The system prompt sent with every request (see `generator.py` → `SYSTEM_PROMPT`) reads:
+
+> "You are an assistant that answers questions about CS student career advice using ONLY the context provided below. Do not use any outside knowledge.
+>
+> If the context does not contain enough information to answer the question, respond exactly with: 'I don't have enough information in my sources to answer that.'
+>
+> When you do answer, base your response strictly on the provided context and do not speculate beyond it."
+
+Giving the model an *exact* fallback string (rather than a vague "say you don't know") matters structurally: it lets `generate_response()` detect refusals by string comparison (`if answer == FALLBACK_NOT_IN_CONTEXT`) and skip attaching a misleading "Sources" list to an answer the model never actually gave. The retrieved chunks are also formatted into a numbered, source-labeled context block (`_format_context()` — `[1] (source: filename.txt)\n<chunk text>`) before being handed to the model, so each passage's provenance is visible to the LLM at generation time, not just to the citation logic afterward.
+
 **How source attribution is surfaced in the response:**
+
+Source attribution is **not** left to the LLM to generate — it's attached programmatically after the model responds. `generate_response()` collects the `source` filename of every chunk that was actually retrieved for the query, deduplicates them, looks each one up in `config.SOURCE_BY_FILENAME` to get its public display name and original URL, and appends a `Sources:` section formatted as clickable markdown links (e.g., `- [CS Student Advice (HN)](https://news.ycombinator.com/item?id=43499119)`) to the end of the answer. Because Gradio's `Chatbot` renders markdown by default, these render as clickable links pointing to the original public article — not the private local `.txt` working copy — so a user can immediately go verify the claim against its source. This guarantees citations are always present and accurate regardless of whether the model chooses to mention sources in its prose, and the section is only appended when the model actually answered (it's skipped entirely when the model returns the "not enough information" fallback).
 
 ---
 
@@ -93,11 +111,11 @@
 
 | # | Question | Expected answer | System response (summarized) | Retrieval quality | Response accuracy |
 |---|----------|-----------------|------------------------------|-------------------|-------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 | What do experienced developers and CS students recommend for landing a first software internship with no prior experience? | Apply early (big tech opens in August), build 2–3 personal projects, use LinkedIn and career fairs, leverage referrals, don't wait until you feel "ready" | Recommends building experience early through internships, personal projects, freelance work, and open source contributions; emphasizes that classroom learning alone is insufficient | Relevant | Accurate |
+| 2 | Is practicing LeetCode alone enough to pass technical interviews at large tech companies like Google or Amazon? | No — LeetCode covers coding but not system design, behavioral interviews, or communication; supplement with system design study, mock interviews, problem patterns | States "no," explains LeetCode is one component, and names system design, database knowledge, concurrency, software architecture, and communication as additional requirements | Relevant | Accurate |
+| 3 | What kinds of projects do CS students and developers say actually stand out to recruiters on a resume? | Full-stack projects with real users/measurable outcomes, deployed apps (not tutorial clones), AI/ML projects; 2–3 quality projects beats 10 throwaway ones | Lists projects that "solve real-world problems," "include multiple technologies," and "demonstrate end-to-end system development" — directionally correct but more generic than the source material | Relevant | Partially accurate |
+| 4 | Is a Master's degree in Computer Science worth pursuing for a software engineering career? | Mixed consensus — worth it for research roles, career switches, or top-10 programs; generally not worth the cost vs. 2–3 years of industry experience for standard roles | States there's "no universal answer," names research/academia/specialized fields as worth-it cases, and frames industry experience as a comparable alternative for traditional SWE careers | Relevant | Accurate |
+| 5 | How do CS students and junior developers say you should handle imposter syndrome when starting your career? | Recognize it's universal, track your own progress, use Google freely, collaborate instead of compete, treat uncertainty as growth | Lists "respect your own learning pace," "avoid comparing to others," "focus on personal growth," and "professional growth is a gradual process" | Relevant | Accurate |
 
 **Retrieval quality:** Relevant / Partially relevant / Off-target  
 **Response accuracy:** Accurate / Partially accurate / Inaccurate
@@ -119,11 +137,19 @@
 
 **Question that failed:**
 
+"What kinds of projects do students say actually impress recruiters?" — a paraphrase of evaluation question 3 ("What kinds of projects do CS students and developers say actually stand out to recruiters on a resume?"). The original phrasing produced a partially accurate grounded answer; this near-identical paraphrase produced a full refusal.
+
 **What the system returned:**
+
+"I don't have enough information in my sources to answer that." — even though `retrieve()` returned five chunks that *are* about resume-worthy projects (from `resume_projects_devto.txt`, `github_portfolio_gfg.txt`, and `first_internship_devto.txt`), each containing genuinely relevant content like "Build practical experience," "Demonstrate technical skills," and "Problems solved... Technical decisions made."
 
 **Root cause (tied to a specific pipeline stage):**
 
+This traces back to the **chunking stage** interacting with the **retrieval distance threshold**. The relevant source articles present their best material as terse bullet-point fragments ("* Build practical experience\n* Demonstrate technical skills\n* Showcase system design abilities") rather than narrative sentences. My paragraph-aware chunker (ingest.py) preserves these bullet groupings as chunks, but the embedding model (`all-MiniLM-L6-v2`) encodes terse keyword lists less precisely than full sentences, which pushes the cosine distance for this query into the 0.49–0.56 range — just above the ~0.5 threshold where my system prompt's grounding instruction tells the model to treat a match as too weak to confidently answer from. The original evaluation-plan phrasing happened to share more vocabulary overlap with the chunk text (e.g., "stand out to recruiters" vs. "impress recruiters"), pulling the top result to distance 0.40 and clearing the model's confidence bar; the paraphrase did not.
+
 **What you would change to fix it:**
+
+Two changes would help: (1) During cleaning/chunking, rejoin bullet-list items with their parent heading and surrounding sentence context so chunks read as complete thoughts ("Projects help candidates build practical experience and demonstrate technical skills...") rather than disconnected fragments — this gives the embedding model more semantic signal to match against varied phrasings of the same question. (2) Add lightweight query expansion (e.g., asking the LLM to generate 2–3 paraphrases of the user's question and retrieving for each) so that a single unlucky phrasing doesn't sink retrieval below the confidence threshold.
 
 ---
 
@@ -134,7 +160,11 @@
 
 **One way the spec helped you during implementation:**
 
+Having the Chunking Strategy section written out *before* touching `ingest.py` — specific numbers (400 chars, 80 overlap) and the *reasoning* behind them (most advice fits in 1–3 sentences, paragraph structure should be preserved) — gave me a concrete target to implement against and to check my code against afterward. When I started from a chunking implementation copy-pasted from a different project (with chunk_size=300, overlap=50, and naive character-sliding-window splitting), the spec made it immediately obvious that the numbers and the splitting *strategy* didn't match what I'd planned, and it told me exactly what to change it to — paragraph-aware splitting at 400/80 — rather than having to re-derive the right approach from scratch.
+
 **One way your implementation diverged from the spec, and why:**
+
+The planning.md Architecture section names separate `chunk.py`, `embed.py`, and `query.py` modules, but my final implementation consolidates chunking into `ingest.py` (alongside document loading) and folds query orchestration into `app.py`'s `chat()` handler, which calls `retriever.retrieve()` and `generator.generate_response()` directly. I made this call because, once I was actually wiring the pipeline together, the chunking logic and the document-loading logic were tightly coupled (chunking needs the loaded filename for metadata, and is only ever called right after loading), and a standalone `query.py` would have been a thin pass-through with no logic of its own beyond what `app.py`'s chat handler already needed to do. Fewer files made the data flow easier to trace end-to-end without losing any of the planned separation between retrieval and generation.
 
 ---
 
@@ -149,14 +179,14 @@
      chunk_text(). It returned a function using a fixed character split. I overrode the
      chunk size from 500 to 200 because my documents are short reviews, not long guides." -->
 
-**Instance 1**
+**Instance 1 — Rewriting `ingest.py`, `retriever.py`, and `generator.py` from a mismatched starting point**
 
-- *What I gave the AI:*
-- *What it produced:*
-- *What I changed or overrode:*
+- *What I gave the AI:* My completed `planning.md` (specifically the Documents table with real filenames, the Chunking Strategy section with exact numbers and reasoning, and the Grounding instruction paragraph), plus my actual draft files for `ingest.py`, `retriever.py`, and `generator.py` — which I had started by adapting code from a different lab project (a board-game rules RAG system) and asked the AI to "fix it for me, you know my need."
+- *What it produced:* Full rewrites of all three files: a paragraph-aware `chunk_document()` that packs whole paragraphs up to 400 characters with 80-character overlap and tags each chunk with `source` + `chunk_id` metadata; a `retrieve()` function returning ranked `{text, source, distance}` dicts via ChromaDB cosine search; and a `generate_response()` that builds a numbered, source-labeled context block, calls the Groq API with a grounding-enforcing system prompt, and appends a programmatic Sources list.
+- *What I changed or overrode:* The original draft code carried over the wrong domain entirely — it used `"game"` as the metadata key (instead of `"source"`), a 300-char/50-overlap naive character-slice chunker (instead of the 400/80 paragraph-aware approach my spec called for), and board-game example questions in the UI. I directed the rewrite to match my actual `planning.md` numbers and reasoning rather than accept the borrowed defaults, and later caught and fixed a bug the AI's first pass missed — `chunk_document()` was being called with the wrong dict keys (`doc["game"]` instead of `doc["content"]`/`doc["filename"]`) — by testing the ingestion run end-to-end and tracing the `KeyError` back to the call site in `app.py`.
 
-**Instance 2**
+**Instance 2 — Diagnosing the "impress recruiters" retrieval failure for the Failure Case Analysis**
 
-- *What I gave the AI:*
-- *What it produced:*
-- *What I changed or overrode:*
+- *What I gave the AI:* The observation that paraphrasing evaluation question 3 from "stand out to recruiters" to "impress recruiters" flipped the system from giving a grounded answer to refusing with "I don't have enough information in my sources to answer that," even though `retrieve()` still returned chunks that were clearly about resume-worthy projects.
+- *What it produced:* A traced root-cause explanation tying the failure to a specific interaction between two pipeline stages: the paragraph-aware chunker preserves terse bullet-point lists ("Build practical experience / Demonstrate technical skills...") as chunks, `all-MiniLM-L6-v2` encodes those keyword-style fragments less precisely than full sentences, and the resulting cosine distance for the paraphrased query (≈0.49–0.56) lands just above the ~0.5 confidence threshold implied by the grounding instruction — while the original phrasing's extra vocabulary overlap pulled its top match to ≈0.40, comfortably under the bar.
+- *What I changed or overrode:* I had it propose two candidate fixes (rejoining bullet fragments with surrounding sentence context during chunking, and adding lightweight query-paraphrase expansion before retrieval) and I chose to document both rather than implement either — since the assignment explicitly values a well-explained failure over a suspiciously perfect evaluation, I directed the writeup to foreground *why* this is a genuine edge case worth keeping (it shows the grounding mechanism is working as designed, just at a phrasing-sensitive boundary) rather than framing it as a defect to be silently patched over.

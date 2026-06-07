@@ -1,5 +1,5 @@
 from groq import Groq
-from config import GROQ_API_KEY, LLM_MODEL
+from config import GROQ_API_KEY, LLM_MODEL, SOURCE_BY_FILENAME
 
 _client = Groq(api_key=GROQ_API_KEY)
 
@@ -23,22 +23,27 @@ SYSTEM_PROMPT = (
     "If the context does not contain enough information to answer the question, "
     f"respond exactly with: \"{FALLBACK_NOT_IN_CONTEXT}\"\n\n"
     "When you do answer, base your response strictly on the provided context and "
-    "do not speculate beyond it."
+    "do not speculate beyond it. Write your answer as plain prose only: do not "
+    "cite filenames, source labels, or bracketed reference numbers like [1] "
+    "inline, and do not add your own \"Sources\" section, list, or footer — "
+    "a sources list is appended automatically after your answer, so adding "
+    "one yourself would create a duplicate."
 )
 
 
 def _format_context(retrieved_chunks):
     """
-    Build a numbered context block from retrieved chunks.
+    Build a context block from retrieved chunks, with no source labels at all.
 
-    Each chunk is labeled with its source filename so the model can naturally
-    reference where information comes from, and so a human reading the prompt
-    during debugging can immediately see which document backs which passage.
+    Earlier versions labeled each chunk with its filename (e.g. "(source:
+    job_market_prep_hn.txt)") or an index (e.g. "[1]"), but the model mimicked
+    those labels verbatim in its prose — first leaking raw filenames, then
+    inventing a bogus "[1] [2] [3]" references list once the labels became
+    bracketed numbers. Plain, unlabeled chunks give it nothing to echo.
+    Source attribution is handled entirely by the programmatic "Sources:"
+    section appended in generate_response.
     """
-    blocks = []
-    for i, chunk in enumerate(retrieved_chunks, start=1):
-        blocks.append(f"[{i}] (source: {chunk['source']})\n{chunk['text']}")
-    return "\n\n".join(blocks)
+    return "\n\n".join(chunk["text"] for chunk in retrieved_chunks)
 
 
 def generate_response(query, retrieved_chunks):
@@ -90,7 +95,13 @@ def generate_response(query, retrieved_chunks):
 
     # Source attribution is appended programmatically — guaranteed present,
     # not dependent on the model choosing to cite correctly on its own.
-    sources = sorted({chunk["source"] for chunk in retrieved_chunks})
-    sources_block = "\n".join(f"- {s}" for s in sources)
+    # We cite the original public article (display name + URL), not the
+    # private local .txt working copy, since that's the actual reference
+    # a reader could go verify the answer against.
+    filenames = sorted({chunk["source"] for chunk in retrieved_chunks})
+    sources_block = "\n".join(
+        f"- [{SOURCE_BY_FILENAME[f]['display_name']}]({SOURCE_BY_FILENAME[f]['url']})"
+        for f in filenames
+    )
 
     return f"{answer}\n\nSources:\n{sources_block}"
