@@ -69,6 +69,8 @@ The system will retrieve relevant discussions and generate grounded answers with
 
 **Production tradeoff reflection:** `all-MiniLM-L6-v2` has a 256-token context window, which is tight — chunks longer than ~180 words get silently truncated before embedding. For a production system I would evaluate `text-embedding-3-small` (OpenAI) for its 8,192-token window and stronger accuracy, or `voyage-large-2` (Voyage AI) which is specifically tuned for retrieval tasks and handles longer passages. The tradeoffs are cost (both charge per token vs. free local inference), latency (API round-trip vs. local), and data privacy (text leaves your machine). For a student advice corpus that is not sensitive, the API options would be acceptable; for a system handling private student records, local inference would be mandatory.
 
+**Grounding instruction:** The system prompt will read: "Answer the question using only the information in the provided context. Do not use any outside knowledge. If the context does not contain enough information to answer, respond exactly with: 'I don't have enough information in my sources to answer that.'" Each response will also list the source filenames of the chunks that were retrieved, so the user can verify the answer against the original document.
+
 ---
 
 ## Evaluation Plan
