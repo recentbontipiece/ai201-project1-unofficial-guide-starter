@@ -60,6 +60,16 @@ This knowledge is valuable because it's exactly the kind of practical, lived-exp
 
 **Final chunk count:** 193 chunks across the 10 source documents (chunk lengths range from 93–400 characters, averaging ~349).
 
+**Sample chunks (5 representative examples):**
+
+| # | Source | Chunk ID | Length | Text (truncated) |
+|---|--------|----------|--------|-----------------|
+| 1 | `first_internship_devto.txt` | `first_internship_devto_0` | 378 chars | *"LANDING YOUR FIRST CS INTERNSHIP — STUDENT GUIDE. Landing a Computer Science internship requires early preparation, technical skill development, networking, effective resume building, interview preparation, and persistence. Internship recruiting often begins months before internship start dates, making timing an important factor..."* |
+| 2 | `leetcode_not_enough_devto.txt` | `leetcode_not_enough_devto_0` | 397 chars | *"LEETCODE ALONE WON'T SAVE YOU IN 2026 — SOFTWARE ENGINEERING INTERVIEW PREPARATION GUIDE. Modern software engineering interviews evaluate much more than algorithm-solving ability. While Data Structures and Algorithms (DSA) remain important, employers increasingly assess system design, database modeling, concurrency, object-oriented design, cloud technologies, and communication skills."* |
+| 3 | `masters_degree_worth_it_devto.txt` | `masters_degree_worth_it_devto_0` | 264 chars | *"IS A MASTER'S OR PHD DEGREE WORTH IT FOR SOFTWARE ENGINEERS? The value of a Master's or PhD degree in Software Engineering and Computer Science depends heavily on career goals, industry focus, personal learning preferences, and financial considerations."* |
+| 4 | `imposter_syndrome_devto.txt` | `imposter_syndrome_devto_0` | 321 chars | *"IMPOSTER SYNDROME AS A BEGINNER SOFTWARE DEVELOPER. Imposter Syndrome is a common experience among beginner and junior software developers. It occurs when individuals doubt their abilities, underestimate their accomplishments, and fear that they are not qualified for their roles despite evidence of competence."* |
+| 5 | `cs_student_advice_hn.txt` | `cs_student_advice_hn_0` | 389 chars | *"CAREER ADVICE FOR COMPUTER SCIENCE STUDENTS IN A CHANGING TECHNOLOGY MARKET. The technology industry is experiencing significant change due to economic uncertainty, evolving hiring practices, artificial intelligence, and shifts in workforce demand. As a result, many Computer Science students are uncertain about which skills to develop and how to prepare for successful careers."* |
+
 ---
 
 ## Embedding Model
@@ -69,6 +79,32 @@ This knowledge is valuable because it's exactly the kind of practical, lived-exp
      what tradeoffs would you weigh in choosing a different model?
      Consider: context length limits, multilingual support, accuracy on domain-specific text,
      latency, and local vs. API-hosted. -->
+
+**Retrieval examples — 3 queries with top returned chunks:**
+
+**Query 1:** *"Is a Master's in CS worth it?"*
+
+| Rank | Source | Distance | Chunk text (excerpt) | Relevance |
+|------|--------|----------|----------------------|-----------|
+| 1 | `masters_degree_worth_it_devto.txt` | 0.375 | *"IS A MASTER'S OR PHD DEGREE WORTH IT FOR SOFTWARE ENGINEERS? The value of a Master's or PhD degree in Software Engineering and Computer Science depends heavily on career goals, industry focus, personal learning preferences, and financial considerations."* | Highly relevant — directly addresses the question from the dedicated source article |
+| 2 | `masters_degree_worth_it_devto.txt` | 0.445 | *"Should software engineers invest additional time and money pursuing a Master's or PhD degree after completing an undergraduate program? The answer depends on several context-specific factors..."* | Highly relevant — same article, next conceptual chunk expanding on when the degree is/isn't worth it |
+| 3 | `masters_degree_worth_it_devto.txt` | 0.462 | *"Important factors to consider include: Career goals / Financial cost / Opportunity cost / Research interests / Learning preferences"* | Relevant — decision-framework chunk from same source; lower distance because it's a terse bullet list rather than narrative prose |
+
+**Query 2:** *"How do I get a first internship with no experience?"*
+
+| Rank | Source | Distance | Chunk text (excerpt) | Relevance |
+|------|--------|----------|----------------------|-----------|
+| 1 | `first_internship_devto.txt` | 0.484 | *"Strengths / Weaknesses / Missed questions — Preparation Gaps: Missing skills / Insufficient practice / Research deficiencies..."* | Partially relevant — covers self-assessment during internship prep; slightly off-target because this chunk is a terse bullet list whose embedding drifts from the query |
+| 2 | `cs_student_advice_hn.txt` | 0.504 | *"Build projects with friends / Create small businesses / Launch software products / Experiment with entrepreneurship..."* | Relevant — HN advice on building real-world experience as a substitute for formal work history |
+| 3 | `job_market_prep_hn.txt` | 0.508 | *"Pursue internships as early as possible / Build real-world projects to gain experience / Start building professional experience early..."* | Highly relevant — directly lists early-career steps to land an internship |
+
+**Query 3:** *"How should I handle imposter syndrome at my first job?"*
+
+| Rank | Source | Distance | Chunk text (excerpt) | Relevance |
+|------|--------|----------|----------------------|-----------|
+| 1 | `imposter_syndrome_devto.txt` | 0.407 | *"Imposter Syndrome is a common experience among beginner and junior software developers. It occurs when individuals doubt their abilities, underestimate their accomplishments, and fear they are not qualified for their roles despite evidence of competence."* | Highly relevant — the dedicated imposter syndrome article, exactly on-topic |
+| 2 | `imposter_syndrome_devto.txt` | 0.458 | *"Strategies that help: Respect your learning pace / Avoid comparing to others / Focus on personal growth / Understand professional growth is gradual..."* | Highly relevant — actionable advice from the same article |
+| 3 | `cs_student_advice_hn.txt` | 0.512 | *"Junior developers are expected to learn on the job — asking questions and being curious is not weakness, it is how growth happens..."* | Relevant — complementary perspective from HN discussion thread on self-doubt in early careers |
 
 **Model used:** `all-MiniLM-L6-v2` via `sentence-transformers`, run locally through ChromaDB's `SentenceTransformerEmbeddingFunction`. It produces 384-dimensional vectors, requires no API key, has zero per-query cost, and runs fast enough on CPU that ingesting 193 chunks and embedding live queries both feel instantaneous.
 
@@ -97,9 +133,84 @@ The system prompt sent with every request (see `generator.py` → `SYSTEM_PROMPT
 
 Giving the model an *exact* fallback string (rather than a vague "say you don't know") matters structurally: it lets `generate_response()` detect refusals by string comparison (`if answer == FALLBACK_NOT_IN_CONTEXT`) and skip attaching a misleading "Sources" list to an answer the model never actually gave. The retrieved chunks are also formatted into a numbered, source-labeled context block (`_format_context()` — `[1] (source: filename.txt)\n<chunk text>`) before being handed to the model, so each passage's provenance is visible to the LLM at generation time, not just to the citation logic afterward.
 
+**Example response 1 — in-scope question with source attribution:**
+
+> **Query:** Is a Master's in CS worth it?
+>
+> **Response:** The value of a Master's degree in Computer Science depends heavily on career goals, industry focus, personal learning preferences, and financial considerations. It may provide a competitive advantage, especially in large corporations that strongly value higher education, and can influence promotions. However, in some regions, industry experience and technical skills are more important than academic credentials, and degrees may have less impact after initial employment. A Master's degree may be beneficial in certain scenarios such as general software development, web development, or software architecture, but it should not be pursued solely because it seems like the next academic step.
+>
+> Sources:
+> - [Master's Degree Worth It?](https://dev.to/fedekau/is-a-mastersphd-degree-worth-the-effortmoney-in-the-software-engineering-universe-27m1)
+
+**Example response 2 — in-scope question drawing from multiple sources:**
+
+> **Query:** How do I get a first internship with no experience?
+>
+> **Response:** To get a first internship with no experience, it is recommended to begin building professional experience as early as possible. Suggested activities include internships, personal projects, freelance work, and open source contributions. Pursuing internships as early as possible is also advised, along with building real-world projects and developing communication skills. Additionally, internships and mentorship can provide valuable learning experiences.
+>
+> Sources:
+> - [CS Student Advice (HN)](https://news.ycombinator.com/item?id=43499119)
+> - [First CS Internship Guide](https://dev.to/jaber1028/landing-your-first-cs-internship-a-strategic-guide-81j)
+> - [Job Market Prep (HN)](https://news.ycombinator.com/item?id=45120088)
+
+**Example response 3 — out-of-scope refusal:**
+
+> **Query:** What is the capital of France?
+>
+> **Response:** I don't have enough information in my sources to answer that.
+
+The refusal fires because none of the retrieved chunks contain anything about European geography — the grounding instruction in `SYSTEM_PROMPT` directs the model to respond with that exact phrase when context is insufficient, and `generate_response()` detects it by string comparison to skip attaching a spurious "Sources" section to a non-answer.
+
 **How source attribution is surfaced in the response:**
 
 Source attribution is **not** left to the LLM to generate — it's attached programmatically after the model responds. `generate_response()` collects the `source` filename of every chunk that was actually retrieved for the query, deduplicates them, looks each one up in `config.SOURCE_BY_FILENAME` to get its public display name and original URL, and appends a `Sources:` section formatted as clickable markdown links (e.g., `- [CS Student Advice (HN)](https://news.ycombinator.com/item?id=43499119)`) to the end of the answer. Because Gradio's `Chatbot` renders markdown by default, these render as clickable links pointing to the original public article — not the private local `.txt` working copy — so a user can immediately go verify the claim against its source. This guarantees citations are always present and accurate regardless of whether the model chooses to mention sources in its prose, and the section is only appended when the model actually answered (it's skipped entirely when the model returns the "not enough information" fallback).
+
+---
+
+## Query Interface
+
+<!-- Describe the interface your system exposes to users.
+     Include: what input fields exist, what output looks like, and how it handles edge cases.
+     Show a complete sample interaction transcript. -->
+
+**Interface type:** Web chat UI built with Gradio `gr.Blocks`, running locally at `http://127.0.0.1:7860`.
+
+**Input fields:**
+- **Text input** (`#msg-input`) — single-line textarea with placeholder "Ask about internships, interviews, projects, grad school…"; supports typing or pressing Enter to submit.
+- **Send button** (`#send-btn`) — circular purple icon button; submits the current input.
+- **Example question chips** — 6 clickable pill buttons pre-populated with common questions; clicking any chip fills the text input with that question for one-click asking.
+
+**Output:**
+- **Chat message bubbles** — user messages appear as purple right-aligned bubbles; assistant responses appear as dark left-aligned cards with markdown rendering (bold, bullet lists, hyperlinks).
+- **Sources section** — every grounded response ends with a `Sources:` list of clickable links to the original public articles the answer was drawn from.
+- **Refusal message** — if no relevant context exists for the query, the assistant responds with "I don't have enough information in my sources to answer that." with no sources attached.
+
+**Sample interaction transcript:**
+
+---
+
+**User:** How do I start contributing to open source?
+
+**Assistant:** To start contributing to open source, begin by choosing a project that aligns with your interests and skill level. Look for repositories on GitHub using labels like "good first issue" or "beginner-friendly." Read the project's contributing guidelines thoroughly before making any changes. Start with small contributions such as fixing typos, improving documentation, or resolving minor bugs to build familiarity with the codebase and the project's workflow. Once comfortable, move on to larger feature contributions or bug fixes. Consistent engagement and respectful communication with maintainers will build your reputation in the community over time.
+
+Sources:
+- [Open Source Contribution](https://www.geeksforgeeks.org/git/how-to-contribute-open-source/)
+- [GitHub Portfolio Guide](https://www.geeksforgeeks.org/blogs/how-to-build-a-awesome-github-developer-portfolio/)
+
+---
+
+**User:** What is the best pizza in New York?
+
+**Assistant:** I don't have enough information in my sources to answer that.
+
+---
+
+**Running the interface locally:**
+
+```bash
+python app.py
+# → opens at http://127.0.0.1:7860
+```
 
 ---
 

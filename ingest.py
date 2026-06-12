@@ -4,12 +4,22 @@ from config import DOCS_PATH, CHUNK_SIZE, CHUNK_OVERLAP, MIN_CHUNK_LENGTH
 
 def load_documents():
     """Load all .txt documents from the documents folder."""
+    if not os.path.isdir(DOCS_PATH):
+        import logging
+        logging.warning(f"Documents directory not found: {DOCS_PATH}")
+        return []
+
     documents = []
     for filename in sorted(os.listdir(DOCS_PATH)):
         if filename.endswith(".txt"):
             with open(os.path.join(DOCS_PATH, filename), "r", encoding="utf-8") as f:
                 content = f.read()
                 documents.append({"filename": filename, "content": content})
+
+    if not documents:
+        import logging
+        logging.warning(f"No .txt documents found in {DOCS_PATH} — ingestion will produce no chunks.")
+
     print(f"Loaded {len(documents)} document(s) from {DOCS_PATH}")
     return documents
 

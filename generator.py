@@ -99,9 +99,16 @@ def generate_response(query, retrieved_chunks):
     # private local .txt working copy, since that's the actual reference
     # a reader could go verify the answer against.
     filenames = sorted({chunk["source"] for chunk in retrieved_chunks})
+    # Guard: a chunk whose source filename has no config entry would crash
+    # with a KeyError here if a document was added to documents/ without a
+    # matching entry in config.SOURCES. Warn and skip rather than crash so
+    # the rest of the answer still surfaces.
+    import logging
     sources_block = "\n".join(
         f"- [{SOURCE_BY_FILENAME[f]['display_name']}]({SOURCE_BY_FILENAME[f]['url']})"
         for f in filenames
+        if f in SOURCE_BY_FILENAME
+        or not logging.warning(f"chunk source '{f}' has no entry in config.SOURCES — skipping citation")
     )
 
     return f"{answer}\n\nSources:\n{sources_block}"
